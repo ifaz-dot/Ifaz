@@ -570,7 +570,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp }
+  import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, doc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -587,6 +587,11 @@
   window._db = db;
   window._collection = collection;
   window._addDoc = addDoc;
+  window._query = query;
+window._where = where;
+window._getDocs = getDocs;
+window._onSnapshot = onSnapshot;
+window._doc = doc;
   window._serverTimestamp = serverTimestamp;
 
   // ── AUTH ──
@@ -1199,9 +1204,30 @@ async function placeOrder() {
   }
 }
 
-function renderTrackPage() {
+async function renderTrackPage() {
   const recentList = document.getElementById('recentOrdersList'), noMsg = document.getElementById('noOrdersMsg');
   if (!recentList) return;
+  recentList.innerHTML = '<div style="text-align:center;padding:2rem;color:rgba(240,237,230,0.3)">Loading orders...</div>';
+
+  // Fetch from Firestore if available
+  if (window._db && window._query && window._collection && window._getDocs) {
+    try {
+      const q = window._query(window._collection(window._db, 'orders'));
+      const snapshot = await window._getDocs(q);
+      const firestoreOrders = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        firestoreOrders.push({ ...data, docId: doc.id });
+      });
+      // Merge with local orders
+      firestoreOrders.forEach(fo => {
+        const exists = orders.find(o => o.id === fo.orderId);
+        if (exists) { exists.status = fo.status; }
+      });
+      saveOrders();
+    } catch(e) { console.error('Firestore fetch error:', e); }
+  }
+
   if (orders.length === 0) { recentList.innerHTML = ''; if (noMsg) noMsg.style.display = 'block'; return; }
   if (noMsg) noMsg.style.display = 'none';
   const statusMap = { processing:'🟡 Processing', shipped:'🔵 In Transit', delivered:'🟢 Delivered', cancelled:'🔴 Cancelled' };
