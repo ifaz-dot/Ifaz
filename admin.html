@@ -314,8 +314,26 @@
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('orders')">📋 Orders</button>
   <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendar</button>
+  <button class="tab-btn" onclick="switchTab('deliveryboys')">👥 Delivery Boys</button>
 </div>
-
+<!-- DELIVERY BOYS TAB -->
+<div id="tabDeliveryboys" style="display:none">
+  <div style="padding:20px">
+    <h2 style="margin-bottom:20px">👥 Delivery Boys</h2>
+    <div style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:20px">
+      <h3 style="margin-bottom:16px">➕ Add New Delivery Boy</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <input id="dbName" placeholder="Name" style="padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);flex:1;min-width:140px">
+        <input id="dbPassword" placeholder="Password" style="padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);flex:1;min-width:140px">
+        <button onclick="addDeliveryBoy()" style="padding:10px 20px;background:#6c63ff;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600">Add</button>
+      </div>
+    </div>
+    <div id="deliveryBoysList" style="background:var(--card);border-radius:16px;padding:20px">
+      <h3 style="margin-bottom:16px">👤 Current Delivery Boys</h3>
+      <div id="dbListContent">Loading...</div>
+    </div>
+  </div>
+</div>
 <!-- CALENDAR TAB -->
 <div id="tabCalendar" style="display:none">
   <div class="calendar-layout">
@@ -504,6 +522,8 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='orders')||(i===1&&tab==='calendar')));
   document.getElementById('tabOrders').style.display = tab === 'orders' ? 'block' : 'none';
   document.getElementById('tabCalendar').style.display = tab === 'calendar' ? 'block' : 'none';
+  document.getElementById('tabDeliveryboys').style.display = tab === 'deliveryboys' ? 'block' : 'none';
+if (tab === 'deliveryboys') { loadDeliveryBoys(); }
   if (tab === 'calendar') { renderCalendar(); renderGroupedOrders(); }
 }
 
