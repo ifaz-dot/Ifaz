@@ -696,7 +696,7 @@ function renderGroupedOrders() {
       <div class="order-total">৳${o.total||0}</div>
       <div class="order-time">${time}</div>
       <div class="status-actions" onclick="event.stopPropagation()">
-        ${getStatusBadge(o.status)}
+        ${getStatusBadge(o)}
         <button class="status-btn preparing" onclick="updateStatus('${o.docId}','processing')">🟡</button>
         <button class="status-btn shipped" onclick="updateStatus('${o.docId}','shipped')">🔵</button>
         <button class="status-btn delivered" onclick="updateStatus('${o.docId}','delivered')">🟢</button>
@@ -714,7 +714,7 @@ function renderGroupedOrders() {
     document.getElementById('ordersList').innerHTML = filtered.map(o => {
       const itemNames = (o.items || []).map(i => i.name).join(', ');
       const date = o.createdAt?.seconds ? new Date(o.createdAt.seconds * 1000).toLocaleDateString('en-GB', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-      const statusBadge = getStatusBadge(o.status);
+      const statusBadge = getStatusBadge(o);
       const assignedTo = o.assignedTo || '';
 const assignHTML = assignedTo
   ? `<span class="assigned-badge">🛵 ${assignedTo}</span>
@@ -749,14 +749,17 @@ const assignHTML = assignedTo
     }).join('');
   }
 
-  function getStatusBadge(status) {
-    const map = {
-      processing: '<span class="status-badge processing">🟡 Processing</span>',
-      shipped:    '<span class="status-badge shipped">🔵 In Transit</span>',
-      delivered:  '<span class="status-badge delivered">🟢 Delivered</span>',
-      cancelled:  '<span class="status-badge cancelled">🔴 Cancelled</span>',
-    };
-    return map[status] || `<span class="status-badge">${status}</span>`;
+  function getStatusBadge(o) {
+    const ds = o.deliveryStatus;
+    const s = o.status;
+    if (ds === 'pickedup') return '<span class="status-badge shipped">🟠 Picked Up</span>';
+    if (ds === 'onway')    return '<span class="status-badge shipped">🔵 On the Way</span>';
+    if (ds === 'assigned') return '<span class="status-badge processing">🟡 Assigned</span>';
+    if (s === 'delivered') return '<span class="status-badge delivered">🟢 Delivered</span>';
+    if (s === 'shipped')   return '<span class="status-badge shipped">🔵 In Transit</span>';
+    if (s === 'processing')return '<span class="status-badge processing">🟡 Processing</span>';
+    if (s === 'cancelled') return '<span class="status-badge cancelled">🔴 Cancelled</span>';
+    return `<span class="status-badge">${s||''}</span>`;
   }
 
   async function updateStatus(docId, newStatus) {
@@ -811,7 +814,7 @@ const assignHTML = assignedTo
         </div>
       </div>
       <div class="modal-section">
-        <div class="modal-section-title">Current Status: ${getStatusBadge(o.status)}</div>
+        <div class="modal-section-title">Current Status: ${getStatusBadge(o)}</div>
         <div class="modal-status-btns">
           <button class="modal-status-btn" style="background:var(--yellow-light);color:var(--yellow)" onclick="updateStatus('${docId}','processing');closeModal()">🟡 Processing</button>
           <button class="modal-status-btn" style="background:var(--blue-light);color:#60a5fa" onclick="updateStatus('${docId}','shipped');closeModal()">🔵 Out for Delivery</button>
