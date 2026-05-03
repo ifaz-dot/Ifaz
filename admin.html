@@ -252,7 +252,7 @@
 .cal-days-header { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 0.5rem; }
 .cal-day-label { text-align: center; font-size: 0.65rem; font-weight: 700; color: var(--muted); padding: 0.3rem 0; }
 .cal-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
-.cal-day { aspect-ratio: 1; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all 0.2s; border: 1px solid transparent; font-size: 0.83rem; font-weight: 500; }
+.cal-day { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all 0.2s; border: 1px solid transparent; font-size: 0.83rem; font-weight: 500; }
 .cal-day:hover { background: rgba(255,255,255,0.06); }
 .cal-day.today { border-color: rgba(232,48,74,0.5); color: var(--red); font-weight: 700; }
 .cal-day.selected { background: var(--red); color: #fff; }
