@@ -678,7 +678,7 @@ if (user) {
 <nav id="mainNav">
   <div class="nav-logo" onclick="showPage('home')">PUL<span>P</span></div>
  <div class="nav-right">
-    <button class="cart-btn" onclick="openAuth()" id="navAuthBtn">
+    <button class="cart-btn" onclick="handleAuthBtn()" id="navAuthBtn">
       👤 Sign In
     </button>
     <button class="cart-btn" onclick="showPage('cart')">
@@ -1287,8 +1287,15 @@ async function signOutUser() {
   } catch(e) { showToast('Sign out failed'); }
 }
 
-// ── PAGE ROUTING ──
-function showPage(name) {
+function handleAuthBtn() {
+  if (window._currentUser) {
+    showPage('profile');
+  } else {
+    openAuth();
+  }
+}
+  // ── PAGE ROUTING ──
+  function showPage(name) {
   // If going to profile and not logged in → show login popup
   if (name === 'profile' && !window._currentUser) {
     openAuth(); return;
