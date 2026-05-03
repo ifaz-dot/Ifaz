@@ -193,26 +193,29 @@
 <script>
   // ── DELIVERY BOYS — Add more here ──
   // Format: { name: 'Name', password: 'password' }
-  const DELIVERY_BOYS = [
-    { name: 'Rahim', password: 'rahim123' },
-    { name: 'Karim', password: 'karim123' },
-    { name: 'Jamal', password: 'jamal123' },
-  ];
+  let DELIVERY_BOYS = [];
+
+async function loadDeliveryBoys() {
+  const snap = await window._getDocs(window._collection(window._db, 'deliveryBoys'));
+  DELIVERY_BOYS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
 
   let currentBoy = null;
   let allOrders = [];
   let currentFilter = 'all';
 
   // ── AUTO LOGIN ──
-  window.addEventListener('load', () => {
-    const saved = localStorage.getItem('pulp_delivery_user');
-    if (saved) {
-      const boy = DELIVERY_BOYS.find(b => b.name === saved);
-      if (boy) { currentBoy = boy; showDashboard(); }
-    }
-  });
+  window.addEventListener('load', async () => {
+  await loadDeliveryBoys();
+  const saved = localStorage.getItem('pulp_delivery_user');
+  if (saved) {
+    const boy = DELIVERY_BOYS.find(b => b.name === saved);
+    if (boy) { currentBoy = boy; showDashboard(); }
+  }
+});
 
-  function doLogin() {
+async function doLogin() {
+  await loadDeliveryBoys();
     const name = document.getElementById('loginName').value.trim();
     const pass = document.getElementById('loginPass').value;
     const remember = document.getElementById('rememberMe').checked;
