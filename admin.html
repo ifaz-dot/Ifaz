@@ -624,8 +624,9 @@ function renderGroupedOrders() {
 
   async function loadOrders() {
     document.getElementById('ordersList').innerHTML = '<div class="loading-state">⏳ Fetching orders...</div>';
-    await loadDeliveryBoysData();
+    
     try {
+      await loadDeliveryBoysData();
       const q = window._query(window._collection(window._db, 'orders'));
       const snapshot = await window._getDocs(q);
       allOrders = [];
