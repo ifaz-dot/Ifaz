@@ -474,11 +474,12 @@
 </script>
 
 <script>
-  const DELIVERY_BOYS = [
-  { name: 'Rahim', password: 'rahim123' },
-  { name: 'Karim', password: 'karim123' },
-  { name: 'Jamal', password: 'jamal123' },
-];
+  let DELIVERY_BOYS = [];
+
+async function loadDeliveryBoysData() {
+  const snap = await db.collection('deliveryBoys').get();
+  DELIVERY_BOYS = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
 
 async function assignDelivery(orderId) {
   const select = document.getElementById('asgn-' + orderId);
@@ -623,6 +624,7 @@ function renderGroupedOrders() {
 
   async function loadOrders() {
     document.getElementById('ordersList').innerHTML = '<div class="loading-state">⏳ Fetching orders...</div>';
+    await loadDeliveryBoysData();
     try {
       const q = window._query(window._collection(window._db, 'orders'));
       const snapshot = await window._getDocs(q);
