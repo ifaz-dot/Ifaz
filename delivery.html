@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PULP — Delivery Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e8304a;
+    --red-dark: #b8202e;
+    --red-light: rgba(232,48,74,0.12);
+    --green: #6bbf3f;
+    --green-light: rgba(107,191,63,0.12);
+    --blue: #3b82f6;
+    --blue-light: rgba(59,130,246,0.12);
+    --yellow: #f5c518;
+    --yellow-light: rgba(245,197,24,0.12);
+    --orange: #ff8c00;
+    --orange-light: rgba(255,140,0,0.12);
+    --dark: #0f0e0c;
+    --card: #1a1816;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0ede6;
+    --muted: rgba(240,237,230,0.4);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  /* LOGIN */
+  #loginScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: radial-gradient(ellipse at 50% 30%, rgba(232,48,74,0.08) 0%, transparent 60%); }
+  .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; text-align: center; }
+  .login-logo { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; margin-bottom: 0.2rem; }
+  .login-logo span { color: var(--red); }
+  .login-sub { color: var(--muted); font-size: 0.8rem; margin-bottom: 2rem; }
+  .login-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 0.9rem 1rem; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; margin-bottom: 0.7rem; transition: border-color 0.2s; }
+  .login-input:focus { border-color: rgba(232,48,74,0.5); }
+  .login-input::placeholder { color: var(--muted); }
+  .login-btn { width: 100%; background: var(--red); color: #fff; border: none; border-radius: 12px; padding: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-bottom: 0.75rem; }
+  .login-error { color: var(--red); font-size: 0.8rem; margin-top: 0.4rem; display: none; }
+  .save-pass-row { display: flex; align-items: center; gap: 0.5rem; justify-content: center; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .save-pass-row input { width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; }
+
+  /* DASHBOARD */
+  #dashboard { display: none; min-height: 100vh; padding-bottom: 80px; }
+  .topbar { position: sticky; top: 0; z-index: 100; background: rgba(15,14,12,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0.875rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 0.75rem; }
+  .topbar-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; letter-spacing: -1px; }
+  .topbar-logo span { color: var(--red); }
+  .delivery-badge { background: var(--green-light); border: 1px solid rgba(107,191,63,0.3); color: var(--green); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.65rem; border-radius: 50px; }
+  .topbar-name { font-size: 0.8rem; color: var(--muted); }
+  .logout-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); padding: 0.4rem 0.875rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; }
+
+  .main { padding: 1.25rem; max-width: 600px; margin: 0 auto; }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; text-align: center; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; }
+  .stat-val.red { color: var(--red); }
+  .stat-val.yellow { color: var(--yellow); }
+  .stat-val.green { color: var(--green); }
+  .stat-lbl { font-size: 0.65rem; color: var(--muted); margin-top: 0.15rem; }
+
+  /* FILTER TABS */
+  .filter-tabs { display: flex; gap: 0.4rem; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 0.25rem; }
+  .filter-tab { border: 1px solid var(--border); background: var(--card); color: var(--muted); padding: 0.5rem 1rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .filter-tab.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* ORDER CARDS */
+  .orders-list { display: flex; flex-direction: column; gap: 0.875rem; }
+  .order-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 1.25rem; }
+  .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .order-card-id { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; color: #f87b8a; }
+  .order-card-time { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
+  .status-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.7rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+  .status-badge.assigned { background: var(--yellow-light); color: var(--yellow); border: 1px solid rgba(245,197,24,0.25); }
+  .status-badge.pickedup { background: var(--orange-light); color: var(--orange); border: 1px solid rgba(255,140,0,0.25); }
+  .status-badge.onway { background: var(--blue-light); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+  .status-badge.delivered { background: var(--green-light); color: var(--green); border: 1px solid rgba(107,191,63,0.25); }
+
+  .customer-info { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+  .customer-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .customer-detail { display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; color: var(--muted); margin-bottom: 0.3rem; }
+  .customer-detail:last-child { margin-bottom: 0; }
+  .customer-detail-icon { font-size: 0.9rem; width: 18px; }
+
+  .action-btns { display: flex; flex-direction: column; gap: 0.5rem; }
+  .action-btn { width: 100%; border: none; border-radius: 12px; padding: 0.875rem; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+  .action-btn.pickup { background: var(--orange-light); color: var(--orange); border: 1px solid rgba(255,140,0,0.3); }
+  .action-btn.onway { background: var(--blue-light); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .action-btn.deliver { background: var(--green-light); color: var(--green); border: 1px solid rgba(107,191,63,0.3); }
+  .action-btn:active { transform: scale(0.97); }
+
+  .call-btn { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 0.75rem; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; text-decoration: none; }
+
+  .empty-state { text-align: center; padding: 4rem 1.5rem; color: var(--muted); }
+  .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+  .empty-state p { font-size: 0.88rem; }
+
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--dark); padding: 0.7rem 1.4rem; border-radius: 50px; font-weight: 700; font-size: 0.83rem; z-index: 9999; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  .refresh-btn { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--muted); border-radius: 12px; padding: 0.75rem; font-family: 'DM Sans', sans-serif; font-size: 0.83rem; cursor: pointer; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">PUL<span>P</span></div>
+    <div class="login-sub">Delivery Panel · Staff Only</div>
+    <input class="login-input" id="loginName" type="text" placeholder="Your name" autocomplete="username">
+    <input class="login-input" id="loginPass" type="password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="save-pass-row">
+      <input type="checkbox" id="rememberMe" checked>
+      <label for="rememberMe">Remember me on this device</label>
+    </div>
+    <button class="login-btn" onclick="doLogin()">🚴 Start Delivery</button>
+    <div class="login-error" id="loginError">⚠️ Wrong name or password. Try again.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-logo">PUL<span>P</span></div>
+      </div>
+      <span class="delivery-badge">Delivery</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem">
+      <span class="topbar-name" id="topbarName"></span>
+      <button class="logout-btn" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val red" id="statAssigned">0</div><div class="stat-lbl">Assigned</div></div>
+      <div class="stat-card"><div class="stat-val yellow" id="statOngoing">0</div><div class="stat-lbl">Ongoing</div></div>
+      <div class="stat-card"><div class="stat-val green" id="statDone">0</div><div class="stat-lbl">Delivered</div></div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('all')">All</button>
+      <button class="filter-tab" onclick="setFilter('assigned')">🟡 New</button>
+      <button class="filter-tab" onclick="setFilter('pickedup')">🟠 Picked Up</button>
+      <button class="filter-tab" onclick="setFilter('onway')">🔵 On the Way</button>
+      <button class="filter-tab" onclick="setFilter('delivered')">🟢 Delivered</button>
+    </div>
+
+    <button class="refresh-btn" onclick="loadOrders()">↻ Refresh Orders</button>
+
+    <!-- ORDERS -->
+    <div class="orders-list" id="ordersList">
+      <div class="empty-state"><div class="empty-state-icon">📦</div><p>Loading your orders...</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, query, where }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDdivWpzUQTA732gtB2F3IGyHXeBiWxNvU",
+    authDomain: "pulp-drinks.firebaseapp.com",
+    projectId: "pulp-drinks",
+    storageBucket: "pulp-drinks.firebasestorage.app",
+    messagingSenderId: "15583640876",
+    appId: "1:15583640876:web:5672eeee4b1992c7c14089"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._collection = collection;
+  window._getDocs = getDocs;
+  window._doc = doc;
+  window._updateDoc = updateDoc;
+  window._query = query;
+  window._where = where;
+</script>
+
+<script>
+  // ── DELIVERY BOYS — Add more here ──
+  // Format: { name: 'Name', password: 'password' }
+  const DELIVERY_BOYS = [
+    { name: 'Rahim', password: 'rahim123' },
+    { name: 'Karim', password: 'karim123' },
+    { name: 'Jamal', password: 'jamal123' },
+  ];
+
+  let currentBoy = null;
+  let allOrders = [];
+  let currentFilter = 'all';
+
+  // ── AUTO LOGIN ──
+  window.addEventListener('load', () => {
+    const saved = localStorage.getItem('pulp_delivery_user');
+    if (saved) {
+      const boy = DELIVERY_BOYS.find(b => b.name === saved);
+      if (boy) { currentBoy = boy; showDashboard(); }
+    }
+  });
+
+  function doLogin() {
+    const name = document.getElementById('loginName').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const remember = document.getElementById('rememberMe').checked;
+    const boy = DELIVERY_BOYS.find(b => b.name.toLowerCase() === name.toLowerCase() && b.password === pass);
+    if (boy) {
+      currentBoy = boy;
+      if (remember) localStorage.setItem('pulp_delivery_user', boy.name);
+      showDashboard();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('loginPass').value = '';
+    }
+  }
+
+  function doLogout() {
+    localStorage.removeItem('pulp_delivery_user');
+    currentBoy = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('loginName').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display = 'none';
+  }
+
+  function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('topbarName').textContent = '👋 ' + currentBoy.name;
+    loadOrders();
+  }
+
+  // ── LOAD ORDERS ──
+  async function loadOrders() {
+    document.getElementById('ordersList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><p>Loading orders...</p></div>';
+    try {
+      const q = window._query(window._collection(window._db, 'orders'));
+      const snapshot = await window._getDocs(q);
+      allOrders = [];
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        // Show orders assigned to this delivery boy
+        if (data.assignedTo === currentBoy.name) {
+          allOrders.push({ ...data, docId: docSnap.id });
+        }
+      });
+      allOrders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+      updateStats();
+      renderOrders();
+    } catch(e) {
+      document.getElementById('ordersList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Failed to load. Check connection.</p></div>';
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('statAssigned').textContent = allOrders.filter(o => o.deliveryStatus === 'assigned').length;
+    document.getElementById('statOngoing').textContent = allOrders.filter(o => o.deliveryStatus === 'pickedup' || o.deliveryStatus === 'onway').length;
+    document.getElementById('statDone').textContent = allOrders.filter(o => o.deliveryStatus === 'delivered').length;
+  }
+
+  function setFilter(f) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderOrders();
+  }
+
+  function renderOrders() {
+    const filtered = currentFilter === 'all' ? allOrders : allOrders.filter(o => o.deliveryStatus === currentFilter);
+    if (filtered.length === 0) {
+      document.getElementById('ordersList').innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><p>${currentFilter === 'all' ? 'No orders assigned to you yet.' : 'No orders in this category.'}</p></div>`;
+      return;
+    }
+    document.getElementById('ordersList').innerHTML = filtered.map(o => orderCardHTML(o)).join('');
+  }
+
+  function getStatusBadge(status) {
+    const map = {
+      assigned:  '<span class="status-badge assigned">🟡 New Order</span>',
+      pickedup:  '<span class="status-badge pickedup">🟠 Picked Up</span>',
+      onway:     '<span class="status-badge onway">🔵 On the Way</span>',
+      delivered: '<span class="status-badge delivered">🟢 Delivered</span>',
+    };
+    return map[status] || '<span class="status-badge assigned">🟡 New Order</span>';
+  }
+
+  function getActionBtns(o) {
+    const status = o.deliveryStatus || 'assigned';
+    if (status === 'assigned') return `
+      <button class="action-btn pickup" onclick="updateDeliveryStatus('${o.docId}','pickedup')">🟠 Mark as Picked Up</button>`;
+    if (status === 'pickedup') return `
+      <button class="action-btn onway" onclick="updateDeliveryStatus('${o.docId}','onway')">🔵 On the Way</button>`;
+    if (status === 'onway') return `
+      <button class="action-btn deliver" onclick="updateDeliveryStatus('${o.docId}','delivered')">🟢 Mark as Delivered</button>`;
+    return `<div style="text-align:center;color:var(--green);font-size:0.85rem;padding:0.5rem">✅ Delivery Complete!</div>`;
+  }
+
+  function orderCardHTML(o) {
+    const time = o.createdAt?.seconds ? new Date(o.createdAt.seconds*1000).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '—';
+    const phone = o.customer?.phone || '—';
+    return `
+      <div class="order-card">
+        <div class="order-card-header">
+          <div>
+            <div class="order-card-id">#${o.orderId||o.docId.slice(0,8)}</div>
+            <div class="order-card-time">⏰ ${time}</div>
+          </div>
+          ${getStatusBadge(o.deliveryStatus)}
+        </div>
+        <div class="customer-info">
+          <div class="customer-name">${o.customer?.firstName||''} ${o.customer?.lastName||''}</div>
+          <div class="customer-detail"><span class="customer-detail-icon">📍</span>${o.customer?.address||'—'}, ${o.customer?.city||''}</div>
+          <div class="customer-detail"><span class="customer-detail-icon">📱</span>${phone}</div>
+          <div class="customer-detail"><span class="customer-detail-icon">💰</span>৳${o.total||0} · ${o.payment||'—'}</div>
+        </div>
+        <div class="action-btns">
+          ${getActionBtns(o)}
+        </div>
+        <a class="call-btn" href="tel:${phone}">📞 Call Customer</a>
+      </div>`;
+  }
+
+  async function updateDeliveryStatus(docId, newStatus) {
+    try {
+      await window._updateDoc(window._doc(window._db, 'orders', docId), {
+        deliveryStatus: newStatus,
+        status: newStatus === 'delivered' ? 'delivered' : 'shipped'
+      });
+      const order = allOrders.find(o => o.docId === docId);
+      if (order) {
+        order.deliveryStatus = newStatus;
+        order.status = newStatus === 'delivered' ? 'delivered' : 'shipped';
+      }
+      updateStats();
+      renderOrders();
+      const msgs = { pickedup: '🟠 Marked as Picked Up!', onway: '🔵 On the Way!', delivered: '🟢 Delivered! Great job!' };
+      showToast(msgs[newStatus] || 'Updated!');
+    } catch(e) {
+      showToast('⚠️ Update failed. Check connection.');
+    }
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    clearTimeout(toastTimer);
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
