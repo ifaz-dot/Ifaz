@@ -1238,23 +1238,38 @@ async function renderTrackPage() {
   }).join('');
 }
 
-function trackOrder() {
+async function trackOrder() {
   const input = document.getElementById('trackInput');
   const val = (input ? input.value : '').trim().toUpperCase();
   const order = orders.find(o => o.id === val);
   const resultEl = document.getElementById('trackResult');
   if (!order) { showToast('Order not found. Check the ID.'); if (resultEl) resultEl.innerHTML = ''; return; }
-  showOrderDetail(order.id);
+  await showOrderDetail(order.id);
 }
 
-function showOrderDetail(orderId) {
+async function showOrderDetail(orderId) {
   const order = orders.find(o => o.id === orderId); if (!order) return;
+  if (window._db && window._query && window._collection && window._getDocs && window._where) {
+    try {
+      const q = window._query(window._collection(window._db, 'orders'), window._where('orderId', '==', orderId));
+      const snap = await window._getDocs(q);
+      if (!snap.empty) {
+        const fresh = snap.docs[0].data();
+        order.status = fresh.status;
+        order.deliveryStatus = fresh.deliveryStatus || '';
+      }
+    } catch(e) {}
+  }
+  const ds = order.deliveryStatus;
+  const s = order.status;
   const steps = [
     { label:'Order Placed', desc:'We received your order', done:true, active:false },
     { label:'Confirmed', desc:'Payment verified & confirmed', done:true, active:false },
-    { label:'Preparing', desc:'Pressing your drinks fresh', done:order.status !== 'processing', active:order.status === 'processing' },
-    { label:'Out for Delivery', desc:'On the way to you', done:order.status === 'delivered', active:order.status === 'shipped' },
-    { label:'Delivered', desc:'Enjoy your drinks! 🧃', done:order.status === 'delivered', active:false }
+    { label:'Preparing', desc:'Pressing your drinks fresh', done: s !== 'processing', active: s === 'processing' && !ds },
+    { label:'Assigned to Rider', desc:'A delivery boy has been assigned', done: !!ds, active: ds === 'assigned' },
+    { label:'Picked Up', desc:'Rider has collected your order', done: ds === 'pickedup' || ds === 'onway' || ds === 'delivered', active: ds === 'pickedup' },
+    { label:'On the Way', desc:'Your order is on the way!', done: ds === 'onway' || ds === 'delivered', active: ds === 'onway' },
+    { label:'Delivered', desc:'Enjoy your drinks! 🧃', done: s === 'delivered', active:false }
   ];
   const resultEl = document.getElementById('trackResult'); if (!resultEl) return;
   resultEl.innerHTML = `<div class="track-card"><div class="track-order-id">Order ID</div><div class="track-order-num">#${order.id}</div><div class="track-status-bar">${steps.map(s => `<div class="track-step ${s.active ? 'active' : ''} ${!s.done && !s.active ? 'pending' : ''}"><div class="track-dot ${s.done ? 'done' : ''} ${s.active ? 'active' : ''}"></div><div class="track-step-label">${s.label}</div><div class="track-step-desc">${s.desc}</div></div>`).join('')}</div><div style="margin-top:1.5rem;border-top:1px solid rgba(255,255,255,0.07);padding-top:1.25rem"><div class="track-items-header">Items in this order</div>${order.items.map(item => `<div class="track-item"><svg class="track-item-img" viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg">${item.svgPath}</svg><div class="track-item-name">${item.name}</div><div class="track-item-qty">×${item.qty}</div><div class="track-item-price">৳${item.price * item.qty}</div></div>`).join('')}</div><div class="track-delivery-info"><div class="track-delivery-icon">${order.status === 'delivered' ? '✅' : '🚴'}</div><div class="track-delivery-text"><p>${order.status === 'delivered' ? 'Delivered successfully' : order.status === 'shipped' ? 'On the way to you!' : 'Estimated: Today, 2–4 hours'}</p><p>Total paid: ৳${order.total}</p></div></div></div>`;
