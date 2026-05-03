@@ -224,6 +224,35 @@
     .main { padding: 1rem; }
     .topbar { padding: 0.875rem 1rem; }
   }
+  /* TABS */
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 0.4rem; width: fit-content; }
+.tab-btn { padding: 0.6rem 1.4rem; border-radius: 10px; border: none; background: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.tab-btn.active { background: var(--red); color: #fff; }
+
+/* CALENDAR */
+.calendar-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; align-items: start; }
+.calendar-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; position: sticky; top: 90px; }
+.cal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.cal-month { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+.cal-nav { display: flex; gap: 0.4rem; }
+.cal-nav-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+.cal-grid { padding: 1rem 1.25rem 1.25rem; }
+.cal-days-header { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 0.5rem; }
+.cal-day-label { text-align: center; font-size: 0.65rem; font-weight: 700; color: var(--muted); padding: 0.3rem 0; }
+.cal-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.cal-day { aspect-ratio: 1; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all 0.2s; border: 1px solid transparent; font-size: 0.83rem; font-weight: 500; }
+.cal-day:hover { background: rgba(255,255,255,0.06); }
+.cal-day.today { border-color: rgba(232,48,74,0.5); color: var(--red); font-weight: 700; }
+.cal-day.selected { background: var(--red); color: #fff; }
+.cal-day.has-orders::after { content: ''; position: absolute; bottom: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+.cal-day.selected::after { background: #fff; }
+.cal-day.other-month { color: var(--muted); opacity: 0.4; }
+.cal-legend { padding: 0.75rem 1.25rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; font-size: 0.72rem; color: var(--muted); }
+.cal-legend-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+.cal-selected-info { padding: 0.75rem 1.25rem; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--muted); }
+.calendar-orders { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+.date-group-header { padding: 0.6rem 1.5rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red); display: flex; align-items: center; gap: 0.5rem; }
+.date-group-count { background: var(--red-light); color: #f87b8a; padding: 0.12rem 0.5rem; border-radius: 50px; font-size: 0.65rem; }
 </style>
 </head>
 <body>
@@ -253,6 +282,56 @@
   </div>
 
   <div class="main">
+    <!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('orders')">📋 Orders</button>
+  <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendar</button>
+</div>
+
+<!-- CALENDAR TAB -->
+<div id="tabCalendar" style="display:none">
+  <div class="calendar-layout">
+    <div class="calendar-box">
+      <div class="cal-header">
+        <div class="cal-month" id="calMonth">May 2026</div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-days-header">
+          <div class="cal-day-label">Su</div>
+          <div class="cal-day-label">Mo</div>
+          <div class="cal-day-label">Tu</div>
+          <div class="cal-day-label">We</div>
+          <div class="cal-day-label">Th</div>
+          <div class="cal-day-label">Fr</div>
+          <div class="cal-day-label">Sa</div>
+        </div>
+        <div class="cal-days" id="calDays"></div>
+      </div>
+      <div class="cal-selected-info" id="calSelectedInfo">Click a date to see orders</div>
+      <div class="cal-legend"><div class="cal-legend-dot"></div> Has orders</div>
+    </div>
+    <div class="calendar-orders">
+      <div class="orders-header">
+        <div class="orders-title" id="calOrdersTitle">Select a date</div>
+        <div class="orders-count" id="calOrdersCount">—</div>
+      </div>
+      <div id="calOrdersList"><div class="empty-state"><div class="empty-state-icon">📅</div><p>Select a date from the calendar</p></div></div>
+    </div>
+  </div>
+  <div style="margin-top:1.5rem">
+    <div class="orders-section">
+      <div class="orders-header">
+        <div class="orders-title">Orders by Date</div>
+        <div class="orders-count" id="groupedCount">—</div>
+      </div>
+      <div id="groupedOrdersList"></div>
+    </div>
+  </div>
+</div>
     <!-- STATS -->
     <div class="stats-grid">
       <div class="stat-card red">
@@ -277,6 +356,7 @@
       </div>
     </div>
 
+    <div id="tabOrders">
     <!-- TOOLBAR -->
     <div class="toolbar">
       <input class="search-box" id="searchBox" placeholder="🔍 Search by Order ID, name or phone..." oninput="filterOrders()">
@@ -307,6 +387,7 @@
     </div>
   </div>
 </div>
+  </div>
 
 <!-- ORDER DETAIL MODAL -->
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
@@ -368,6 +449,103 @@
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('loginInput').value = '';
   }
+  // ── TABS ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='orders')||(i===1&&tab==='calendar')));
+  document.getElementById('tabOrders').style.display = tab === 'orders' ? 'block' : 'none';
+  document.getElementById('tabCalendar').style.display = tab === 'calendar' ? 'block' : 'none';
+  if (tab === 'calendar') { renderCalendar(); renderGroupedOrders(); }
+}
+
+// ── CALENDAR ──
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let selectedDate = null;
+
+function renderCalendar() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonth').textContent = monthNames[calMonth] + ' ' + calYear;
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const orderDates = new Set();
+  allOrders.forEach(o => {
+    const d = getOrderTime(o);
+    if (d) orderDates.add(d.toLocaleDateString('en-GB'));
+  });
+  let html = '';
+  for (let i = firstDay-1; i >= 0; i--) html += `<div class="cal-day other-month">${daysInPrev-i}</div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(calYear, calMonth, d);
+    const dateStr = date.toLocaleDateString('en-GB');
+    const isToday = date.toDateString() === today.toDateString();
+    const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+    const hasOrders = orderDates.has(dateStr);
+    html += `<div class="cal-day ${isToday?'today':''} ${isSelected?'selected':''} ${hasOrders?'has-orders':''}" onclick="selectDate(${calYear},${calMonth},${d})">${d}</div>`;
+  }
+  const remaining = 42 - firstDay - daysInMonth;
+  for (let d = 1; d <= remaining; d++) html += `<div class="cal-day other-month">${d}</div>`;
+  document.getElementById('calDays').innerHTML = html;
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function getOrderTime(o) {
+  return o.createdAt?.seconds ? new Date(o.createdAt.seconds * 1000) : null;
+}
+
+function formatDate(d) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+  const date = new Date(d); date.setHours(0,0,0,0);
+  if (date.getTime() === today.getTime()) return 'Today';
+  if (date.getTime() === yesterday.getTime()) return 'Yesterday';
+  return d.toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+}
+
+function selectDate(y, m, d) {
+  selectedDate = new Date(y, m, d);
+  renderCalendar();
+  const dateStr = selectedDate.toLocaleDateString('en-GB');
+  const label = formatDate(selectedDate);
+  const dayOrders = allOrders.filter(o => {
+    const od = getOrderTime(o);
+    return od && od.toLocaleDateString('en-GB') === dateStr;
+  });
+  document.getElementById('calSelectedInfo').innerHTML = `<strong>${label}</strong> — ${dayOrders.length} order${dayOrders.length!==1?'s':''}`;
+  document.getElementById('calOrdersTitle').textContent = label;
+  document.getElementById('calOrdersCount').textContent = dayOrders.length + ' orders';
+  if (dayOrders.length === 0) {
+    document.getElementById('calOrdersList').innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><p>No orders on this date</p></div>`;
+  } else {
+    document.getElementById('calOrdersList').innerHTML = dayOrders.map(orderRowHTML).join('');
+  }
+}
+
+function renderGroupedOrders() {
+  if (allOrders.length === 0) { document.getElementById('groupedOrdersList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No orders yet</p></div>'; return; }
+  const groups = {};
+  allOrders.forEach(o => {
+    const d = getOrderTime(o);
+    const key = d ? d.toLocaleDateString('en-GB') : 'Unknown';
+    if (!groups[key]) groups[key] = { date: d, orders: [] };
+    groups[key].orders.push(o);
+  });
+  const sortedKeys = Object.keys(groups).sort((a,b) => (groups[b].date?.getTime()||0) - (groups[a].date?.getTime()||0));
+  document.getElementById('groupedCount').textContent = sortedKeys.length + ' days';
+  document.getElementById('groupedOrdersList').innerHTML = sortedKeys.map(key => {
+    const g = groups[key];
+    const label = g.date ? formatDate(g.date) : 'Unknown';
+    const revenue = g.orders.reduce((s,o) => s+(o.total||0), 0);
+    return `<div class="date-group-header">📅 ${label}<span class="date-group-count">${g.orders.length} orders</span><span style="margin-left:auto;color:var(--green)">৳${revenue}</span></div>${g.orders.map(orderRowHTML).join('')}`;
+  }).join('');
+}
 
   // ── DATA ──
   let allOrders = [];
