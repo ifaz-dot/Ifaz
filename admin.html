@@ -218,12 +218,24 @@
   .toast-admin.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
   @media (max-width: 900px) {
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
-    .order-row { grid-template-columns: 1fr; gap: 0.5rem; }
-    .order-row.header { display: none; }
-    .main { padding: 1rem; }
-    .topbar { padding: 0.875rem 1rem; }
-  }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .order-row { grid-template-columns: 1fr; gap: 0.5rem; }
+  .order-row.header { display: none; }
+  .main { padding: 1rem; }
+  .topbar { padding: 0.875rem 1rem; }
+  .calendar-layout { grid-template-columns: 1fr; }
+  .calendar-box { position: static; }
+  .cal-grid { padding: 0.75rem; }
+  .cal-day { font-size: 0.75rem; border-radius: 8px; }
+  .cal-header { padding: 1rem; }
+  .cal-month { font-size: 0.95rem; }
+  .calendar-orders { margin-top: 1rem; }
+  .tabs { width: 100%; justify-content: center; }
+  .tab-btn { flex: 1; text-align: center; }
+  .toolbar { flex-direction: column; }
+  .search-box { width: 100%; }
+  .status-actions { flex-wrap: wrap; }
+}
   /* TABS */
 .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.75rem; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 0.4rem; width: fit-content; }
 .tab-btn { padding: 0.6rem 1.4rem; border-radius: 10px; border: none; background: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
