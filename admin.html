@@ -265,6 +265,22 @@
 .calendar-orders { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
 .date-group-header { padding: 0.6rem 1.5rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red); display: flex; align-items: center; gap: 0.5rem; }
 .date-group-count { background: var(--red-light); color: #f87b8a; padding: 0.12rem 0.5rem; border-radius: 50px; font-size: 0.65rem; }
+/* Delivery Assignment */
+.assign-wrap { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.assign-select {
+  padding: 4px 8px; border-radius: 8px; border: 1px solid #ddd;
+  font-size: 12px; background: #fff; cursor: pointer;
+}
+.assign-btn {
+  padding: 4px 10px; border-radius: 8px; border: none;
+  background: #6c63ff; color: #fff; font-size: 12px;
+  cursor: pointer; font-weight: 600; transition: background 0.2s;
+}
+.assign-btn:hover { background: #574fd6; }
+.assigned-badge {
+  font-size: 12px; background: #e8f5e9; color: #2e7d32;
+  padding: 3px 8px; border-radius: 20px; font-weight: 600;
+}
 </style>
 </head>
 <body>
@@ -440,6 +456,28 @@
 </script>
 
 <script>
+  const DELIVERY_BOYS = [
+  { name: 'Rahim', password: 'rahim123' },
+  { name: 'Karim', password: 'karim123' },
+  { name: 'Jamal', password: 'jamal123' },
+];
+
+async function assignDelivery(orderId) {
+  const select = document.getElementById('asgn-' + orderId);
+  const name = select ? select.value : '';
+  if (!name) { alert('Please select a delivery boy.'); return; }
+  try {
+    await db.collection('orders').doc(orderId).update({
+      assignedTo: name,
+      deliveryStatus: 'assigned',
+      status: 'shipped'
+    });
+    showToast('✅ Assigned to ' + name);
+    loadOrders();
+  } catch (err) {
+    alert('Error assigning: ' + err.message);
+  }
+}
   // ── PASSWORD ──
   const ADMIN_PASSWORD = 'pulp2026'; // Change this to your own password!
 
@@ -654,6 +692,18 @@ function renderGroupedOrders() {
       const itemNames = (o.items || []).map(i => i.name).join(', ');
       const date = o.createdAt?.seconds ? new Date(o.createdAt.seconds * 1000).toLocaleDateString('en-GB', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
       const statusBadge = getStatusBadge(o.status);
+      const assignedTo = o.assignedTo || '';
+const assignHTML = assignedTo
+  ? `<span class="assigned-badge">🛵 ${assignedTo}</span>
+     <select class="assign-select" id="asgn-${o.docId}" onclick="event.stopPropagation()">
+       ${DELIVERY_BOYS.map(d => `<option value="${d.name}" ${d.name === assignedTo ? 'selected' : ''}>${d.name}</option>`).join('')}
+     </select>
+     <button class="assign-btn" onclick="event.stopPropagation();assignDelivery('${o.docId}')">Update</button>`
+  : `<select class="assign-select" id="asgn-${o.docId}" onclick="event.stopPropagation()">
+       <option value="">Assign...</option>
+       ${DELIVERY_BOYS.map(d => `<option value="${d.name}">${d.name}</option>`).join('')}
+     </select>
+     <button class="assign-btn" onclick="event.stopPropagation();assignDelivery('${o.docId}')">Assign</button>`;
       return `
         <div class="order-row" onclick="openModal('${o.docId}')">
           <div class="order-id">#${o.orderId || o.docId.slice(0,8)}</div>
@@ -671,6 +721,7 @@ function renderGroupedOrders() {
             <button class="status-btn delivered" onclick="updateStatus('${o.docId}','delivered')">🟢 Delivered</button>
             <button class="status-btn cancelled" onclick="updateStatus('${o.docId}','cancelled')">🔴 Cancel</button>
           </div>
+          <div class="assign-wrap" onclick="event.stopPropagation()">${assignHTML}</div>
         </div>`;
     }).join('');
   }
