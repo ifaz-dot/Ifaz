@@ -477,8 +477,8 @@
   let DELIVERY_BOYS = [];
 
 async function loadDeliveryBoysData() {
-  const snap = await db.collection('deliveryBoys').get();
-  DELIVERY_BOYS = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const snap = await window._getDocs(window._collection(window._db, 'deliveryBoys'));
+  DELIVERY_BOYS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 async function assignDelivery(orderId) {
@@ -486,7 +486,7 @@ async function assignDelivery(orderId) {
   const name = select ? select.value : '';
   if (!name) { alert('Please select a delivery boy.'); return; }
   try {
-    await db.collection('orders').doc(orderId).update({
+    await window._updateDoc(window._doc(window._db, 'orders', orderId), {
       assignedTo: name,
       deliveryStatus: 'assigned',
       status: 'shipped'
@@ -825,6 +825,46 @@ const assignHTML = assignedTo
 
   function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
 
+  async function loadDeliveryBoys() {
+  const snap = await window._getDocs(window._collection(window._db, 'deliveryBoys'));
+  const list = document.getElementById('dbListContent');
+  if (snap.empty) {
+    list.innerHTML = '<p style="color:var(--muted)">No delivery boys added yet.</p>';
+    return;
+  }
+  list.innerHTML = snap.docs.map(doc => {
+    const d = doc.data();
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:10px">
+      <div>
+        <div style="font-weight:600">👤 ${d.name}</div>
+        <div style="font-size:12px;color:var(--muted)">Password: ${d.password}</div>
+      </div>
+      <button onclick="removeDeliveryBoy('${doc.id}')" style="padding:6px 14px;background:#ff4d4d;color:#fff;border:none;border-radius:8px;cursor:pointer">🗑️ Remove</button>
+    </div>`;
+  }).join('');
+}
+
+async function addDeliveryBoy() {
+  const name = document.getElementById('dbName').value.trim();
+  const password = document.getElementById('dbPassword').value.trim();
+  if (!name || !password) { alert('Enter both name and password.'); return; }
+  const { addDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await addDoc(window._collection(window._db, 'deliveryBoys'), { name, password });
+  document.getElementById('dbName').value = '';
+  document.getElementById('dbPassword').value = '';
+  showToast('✅ ' + name + ' added!');
+  loadDeliveryBoys();
+  loadDeliveryBoysData();
+}
+
+async function removeDeliveryBoy(id) {
+  if (!confirm('Remove this delivery boy?')) return;
+  const { deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await deleteDoc(window._doc(window._db, 'deliveryBoys', id));
+  showToast('🗑️ Removed!');
+  loadDeliveryBoys();
+  loadDeliveryBoysData();
+}
   // ── TOAST ──
   let toastTimer;
   function showToast(msg) {
