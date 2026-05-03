@@ -610,15 +610,18 @@
     const nameEl   = document.querySelector('.profile-name');
     const emailEl  = document.querySelector('.profile-email');
     const avatarEl = document.querySelector('.profile-avatar');
-    if (user) {
-      if (nameEl)   nameEl.textContent  = user.displayName || 'My Account';
-      if (emailEl)  emailEl.textContent = user.email;
-      if (avatarEl) avatarEl.textContent = (user.displayName || 'U')[0].toUpperCase();
-    } else {
-      if (nameEl)   nameEl.textContent  = 'Guest User';
-      if (emailEl)  emailEl.textContent = 'Sign in to your account';
-      if (avatarEl) avatarEl.textContent = '🧃';
-    }
+    const navAuthBtn = document.getElementById('navAuthBtn');
+if (user) {
+  if (nameEl)   nameEl.textContent  = user.displayName || 'My Account';
+  if (emailEl)  emailEl.textContent = user.email;
+  if (avatarEl) avatarEl.textContent = (user.displayName || 'U')[0].toUpperCase();
+  if (navAuthBtn) navAuthBtn.textContent = '👤 ' + (user.displayName || 'Account');
+} else {
+  if (nameEl)   nameEl.textContent  = 'Guest User';
+  if (emailEl)  emailEl.textContent = 'Sign in to your account';
+  if (avatarEl) avatarEl.textContent = '🧃';
+  if (navAuthBtn) navAuthBtn.textContent = '👤 Sign In';
+}
   });
 </script>
 </head>
@@ -674,11 +677,14 @@
 <!-- TOP NAV -->
 <nav id="mainNav">
   <div class="nav-logo" onclick="showPage('home')">PUL<span>P</span></div>
-  <div class="nav-right">
+ <div class="nav-right">
+    <button class="cart-btn" onclick="openAuth()" id="navAuthBtn">
+      👤 Sign In
+    </button>
     <button class="cart-btn" onclick="showPage('cart')">
       🧃 <span class="cart-count" id="cartCount">0</span>
     </button>
-  </div>
+</div>
 </nav>
 
 <!-- BOTTOM NAV -->
