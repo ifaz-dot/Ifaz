@@ -609,6 +609,28 @@ function renderGroupedOrders() {
     });
   }
 
+  function orderRowHTML(o) {
+  const itemNames = (o.items||[]).map(i=>i.name).join(', ');
+  const time = o.createdAt?.seconds ? new Date(o.createdAt.seconds*1000).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '—';
+  return `
+    <div class="order-row" onclick="openModal('${o.docId}')">
+      <div class="order-id">#${o.orderId||o.docId.slice(0,8)}</div>
+      <div>
+        <div class="order-customer-name">${o.customer?.firstName||''} ${o.customer?.lastName||''}</div>
+        <div class="order-customer-phone">${o.customer?.phone||'—'}</div>
+      </div>
+      <div class="order-items-text">${itemNames}</div>
+      <div class="order-total">৳${o.total||0}</div>
+      <div class="order-time">${time}</div>
+      <div class="status-actions" onclick="event.stopPropagation()">
+        ${getStatusBadge(o.status)}
+        <button class="status-btn preparing" onclick="updateStatus('${o.docId}','processing')">🟡</button>
+        <button class="status-btn shipped" onclick="updateStatus('${o.docId}','shipped')">🔵</button>
+        <button class="status-btn delivered" onclick="updateStatus('${o.docId}','delivered')">🟢</button>
+        <button class="status-btn cancelled" onclick="updateStatus('${o.docId}','cancelled')">🔴</button>
+      </div>
+    </div>`;
+}
   function renderOrders() {
     const filtered = getFilteredOrders();
     document.getElementById('ordersCount').textContent = filtered.length + ' orders';
