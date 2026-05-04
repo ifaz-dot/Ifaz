@@ -503,6 +503,7 @@ async function assignDelivery(orderId) {
   function doLogin() {
     const val = document.getElementById('loginInput').value;
     if (val === ADMIN_PASSWORD) {
+      localStorage.setItem('pulpAdminAuth', 'true');
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       loadOrders();
@@ -514,9 +515,16 @@ async function assignDelivery(orderId) {
   }
 
   function doLogout() {
+    localStorage.removeItem('pulpAdminAuth');
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('loginInput').value = '';
+  }
+
+  if (localStorage.getItem('pulpAdminAuth') === 'true') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadOrders();
   }
   // ── TABS ──
 function switchTab(tab) {
