@@ -524,7 +524,7 @@ async function assignDelivery(orderId) {
   if (localStorage.getItem('pulpAdminAuth') === 'true') {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    loadOrders();
+    setTimeout(() => loadOrders(), 1500);
   }
   // ── TABS ──
 function switchTab(tab) {
