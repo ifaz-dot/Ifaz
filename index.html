@@ -1196,23 +1196,7 @@ async function placeOrder() {
     const oidEl = document.getElementById('orderId');
     if (oidEl) oidEl.textContent = 'ORDER #' + orderId;
     cart = []; saveCart(); updateCartBadge();
-    // Send push notification to admin
-try {
-  await fetch('https://api.onesignal.com/notifications', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Key os_v2_app_7ssgjtruevg63fo77ydfig7olx4vedhhshiucwuwuuj7ed75wsia5k74kmbzibdrs7dh6jl3oekeejzbp2ctjsefk3vnsjedn2tuzzy'
-    },
-    body: JSON.stringify({
-      app_id: '2c1fe654-c435-427d-8eb1-1d61bb4831fa',
-      included_segments: ['Total Subscriptions'],
-      headings: { en: '🧃 New Order Received!' },
-      contents: { en: `New order from ${firstName} — ৳${total}` },
-      android_sound: 'notification'
-    })
-  });
-} catch(e) { console.log('Notification error:', e); }
+
     showPage('success');
   } catch (err) {
     console.error('Order failed:', err);
