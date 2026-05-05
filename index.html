@@ -947,8 +947,11 @@ if (user) {
 <!-- TRACK PAGE -->
 <div id="page-track" class="page">
   <div class="track-inner">
-    <h1 class="track-title">Track <em>Order</em></h1>
-    <p class="track-sub">Enter your order ID or view recent orders below.</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
+  <h1 class="track-title">Track <em>Order</em></h1>
+  <button onclick="renderTrackPage()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#f0ede6;width:42px;height:42px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">↻</button>
+</div>
+<p class="track-sub">Enter your order ID or view recent orders below.</p>
     <div class="track-search">
       <input class="track-input" id="trackInput" placeholder="e.g. PULP-12345" />
       <button class="track-search-btn" onclick="trackOrder()">Track →</button>
