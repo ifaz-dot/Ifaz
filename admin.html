@@ -7,6 +7,8 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "2c1fe654-c435-427d-8eb1-1d61bb4831fa",
+      serviceWorkerPath: "/Ifaz/OneSignalSDKWorker.js",
+      serviceWorkerParam: { scope: "/Ifaz/" },
       notifyButton: { enable: false },
       promptOptions: {
         slidedown: {
