@@ -36,7 +36,10 @@
   .login-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 0.9rem 1rem; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; margin-bottom: 0.7rem; transition: border-color 0.2s; }
   .login-input:focus { border-color: rgba(232,48,74,0.5); }
   .login-input::placeholder { color: var(--muted); }
-  .login-btn { width: 100%; background: var(--red); color: #fff; border: none; border-radius: 12px; padding: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-bottom: 0.75rem; }
+  select.login-input { appearance: none; -webkit-appearance: none; cursor: pointer; }
+  select.login-input option { background: #1a1816; color: var(--text); }
+  .login-btn { width: 100%; background: var(--red); color: #fff; border: none; border-radius: 12px; padding: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-bottom: 0.75rem; transition: background 0.2s; }
+  .login-btn:hover { background: var(--red-dark); }
   .login-error { color: var(--red); font-size: 0.8rem; margin-top: 0.4rem; display: none; }
   .save-pass-row { display: flex; align-items: center; gap: 0.5rem; justify-content: center; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; }
   .save-pass-row input { width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; }
@@ -106,9 +109,11 @@
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN SCREEN -->
 <div id="loginScreen">
-  <div class="login-box">
+
+  <!-- LOGIN BOX -->
+  <div class="login-box" id="loginBox">
     <div class="login-logo">PUL<span>P</span></div>
     <div class="login-sub">Delivery Panel · Staff Only</div>
     <input class="login-input" id="loginName" type="text" placeholder="Your name" autocomplete="username">
@@ -119,16 +124,58 @@
     </div>
     <button class="login-btn" onclick="doLogin()">🚴 Start Delivery</button>
     <div class="login-error" id="loginError">⚠️ Wrong name or password. Try again.</div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.75rem">New delivery boy?</p>
+      <button class="login-btn" style="background:transparent;border:1px solid var(--border);color:var(--text)" onclick="showRegister()">📝 Register Here</button>
+    </div>
   </div>
+
+  <!-- REGISTER BOX -->
+  <div class="login-box" id="registerBox" style="display:none">
+    <div class="login-logo">PUL<span>P</span></div>
+    <div class="login-sub">New Delivery Boy Registration</div>
+    <input class="login-input" id="regName" type="text" placeholder="Full Name">
+    <input class="login-input" id="regPhone" type="tel" placeholder="Phone Number">
+    <select class="login-input" id="regVehicle" onchange="toggleBikeNumber()">
+      <option value="">🚗 Select Vehicle Type</option>
+      <option value="cycle">🚴 Cycle</option>
+      <option value="bike">🏍️ Bike</option>
+    </select>
+    <input class="login-input" id="regBikeNumber" type="text" placeholder="Bike Number (e.g. Dhaka Metro-GA-1234)" style="display:none">
+    <input class="login-input" id="regPassword" type="password" placeholder="Set Password (min 6 chars)">
+    <input class="login-input" id="regPassword2" type="password" placeholder="Confirm Password">
+    <button class="login-btn" onclick="doRegister()">📝 Submit Registration</button>
+    <div class="login-error" id="registerError" style="display:none"></div>
+    <div style="margin-top:1rem">
+      <button class="login-btn" style="background:transparent;border:1px solid var(--border);color:var(--text)" onclick="showLogin()">← Back to Login</button>
+    </div>
+  </div>
+
+  <!-- PENDING APPROVAL BOX -->
+  <div class="login-box" id="pendingBox" style="display:none">
+    <div class="login-logo">PUL<span>P</span></div>
+    <div style="font-size:3rem;margin:1rem 0">⏳</div>
+    <h3 style="margin-bottom:0.5rem;font-family:'Playfair Display',serif">Registration Pending</h3>
+    <p style="font-size:0.83rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem">Your registration is under review. Please wait for admin approval before logging in.</p>
+    <button class="login-btn" style="background:transparent;border:1px solid var(--border);color:var(--text)" onclick="showLogin()">← Back to Login</button>
+  </div>
+
+  <!-- REJECTED BOX -->
+  <div class="login-box" id="rejectedBox" style="display:none">
+    <div class="login-logo">PUL<span>P</span></div>
+    <div style="font-size:3rem;margin:1rem 0">❌</div>
+    <h3 style="margin-bottom:0.5rem;font-family:'Playfair Display',serif">Registration Rejected</h3>
+    <p style="font-size:0.83rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem">Your registration was not approved. Please contact the admin for more information.</p>
+    <button class="login-btn" style="background:transparent;border:1px solid var(--border);color:var(--text)" onclick="showLogin()">← Back to Login</button>
+  </div>
+
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashboard">
   <div class="topbar">
     <div class="topbar-left">
-      <div>
-        <div class="topbar-logo">PUL<span>P</span></div>
-      </div>
+      <div class="topbar-logo">PUL<span>P</span></div>
       <span class="delivery-badge">Delivery</span>
     </div>
     <div style="display:flex;align-items:center;gap:0.75rem">
@@ -167,7 +214,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, query, where }
+  import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -188,38 +235,117 @@
   window._updateDoc = updateDoc;
   window._query = query;
   window._where = where;
+  window._addDoc = addDoc;
 </script>
 
 <script>
-  // ── DELIVERY BOYS — Add more here ──
-  // Format: { name: 'Name', password: 'password' }
   let DELIVERY_BOYS = [];
-
-async function loadDeliveryBoys() {
-  const snap = await window._getDocs(window._collection(window._db, 'deliveryBoys'));
-  DELIVERY_BOYS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
   let currentBoy = null;
   let allOrders = [];
   let currentFilter = 'all';
 
+  // ── LOAD DELIVERY BOYS FROM FIRESTORE ──
+  async function loadDeliveryBoys() {
+    const snap = await window._getDocs(window._collection(window._db, 'deliveryBoys'));
+    DELIVERY_BOYS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  // ── SHOW/HIDE SCREENS ──
+  function showRegister() {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('registerBox').style.display = 'block';
+    document.getElementById('pendingBox').style.display = 'none';
+    document.getElementById('rejectedBox').style.display = 'none';
+  }
+
+  function showLogin() {
+    document.getElementById('loginBox').style.display = 'block';
+    document.getElementById('registerBox').style.display = 'none';
+    document.getElementById('pendingBox').style.display = 'none';
+    document.getElementById('rejectedBox').style.display = 'none';
+  }
+
+  function toggleBikeNumber() {
+    const vehicle = document.getElementById('regVehicle').value;
+    document.getElementById('regBikeNumber').style.display = vehicle === 'bike' ? 'block' : 'none';
+  }
+
+  // ── REGISTRATION ──
+  async function doRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const vehicle = document.getElementById('regVehicle').value;
+    const bikeNumber = document.getElementById('regBikeNumber').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const password2 = document.getElementById('regPassword2').value;
+    const errEl = document.getElementById('registerError');
+
+    errEl.style.display = 'none';
+
+    if (!name || !phone || !vehicle || !password) {
+      errEl.style.display = 'block'; errEl.textContent = '⚠️ Please fill all fields.'; return;
+    }
+    if (vehicle === 'bike' && !bikeNumber) {
+      errEl.style.display = 'block'; errEl.textContent = '⚠️ Please enter bike number.'; return;
+    }
+    if (password !== password2) {
+      errEl.style.display = 'block'; errEl.textContent = '⚠️ Passwords do not match.'; return;
+    }
+    if (password.length < 6) {
+      errEl.style.display = 'block'; errEl.textContent = '⚠️ Password must be at least 6 characters.'; return;
+    }
+
+    try {
+      await window._addDoc(window._collection(window._db, 'deliveryBoys'), {
+        name, phone,
+        vehicleType: vehicle,
+        bikeNumber: vehicle === 'bike' ? bikeNumber : '',
+        password,
+        status: 'pending',
+        rating: 5.0,
+        createdAt: new Date().toISOString()
+      });
+      document.getElementById('registerBox').style.display = 'none';
+      document.getElementById('pendingBox').style.display = 'block';
+    } catch(e) {
+      errEl.style.display = 'block';
+      errEl.textContent = '⚠️ Registration failed. Try again.';
+    }
+  }
+
   // ── AUTO LOGIN ──
   window.addEventListener('load', async () => {
-  await loadDeliveryBoys();
-  const saved = localStorage.getItem('pulp_delivery_user');
-  if (saved) {
-    const boy = DELIVERY_BOYS.find(b => b.name === saved);
-    if (boy) { currentBoy = boy; showDashboard(); }
-  }
-});
+    await loadDeliveryBoys();
+    const saved = localStorage.getItem('pulp_delivery_user');
+    if (saved) {
+      const boy = DELIVERY_BOYS.find(b => b.name === saved && b.status === 'approved');
+      if (boy) { currentBoy = boy; showDashboard(); }
+    }
+  });
 
-async function doLogin() {
-  await loadDeliveryBoys();
+  // ── LOGIN ──
+  async function doLogin() {
+    await loadDeliveryBoys();
     const name = document.getElementById('loginName').value.trim();
     const pass = document.getElementById('loginPass').value;
     const remember = document.getElementById('rememberMe').checked;
-    const boy = DELIVERY_BOYS.find(b => b.name.toLowerCase() === name.toLowerCase() && b.password === pass);
+
+    // Check if registered but pending/rejected
+    const anyMatch = DELIVERY_BOYS.find(b => b.name.toLowerCase() === name.toLowerCase() && b.password === pass);
+    if (anyMatch) {
+      if (anyMatch.status === 'pending') {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('pendingBox').style.display = 'block';
+        return;
+      }
+      if (anyMatch.status === 'rejected') {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('rejectedBox').style.display = 'block';
+        return;
+      }
+    }
+
+    const boy = DELIVERY_BOYS.find(b => b.name.toLowerCase() === name.toLowerCase() && b.password === pass && b.status === 'approved');
     if (boy) {
       currentBoy = boy;
       if (remember) localStorage.setItem('pulp_delivery_user', boy.name);
@@ -230,6 +356,7 @@ async function doLogin() {
     }
   }
 
+  // ── LOGOUT ──
   function doLogout() {
     localStorage.removeItem('pulp_delivery_user');
     currentBoy = null;
@@ -238,8 +365,10 @@ async function doLogin() {
     document.getElementById('loginName').value = '';
     document.getElementById('loginPass').value = '';
     document.getElementById('loginError').style.display = 'none';
+    showLogin();
   }
 
+  // ── SHOW DASHBOARD ──
   function showDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
@@ -256,7 +385,6 @@ async function doLogin() {
       allOrders = [];
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
-        // Show orders assigned to this delivery boy
         if (data.assignedTo === currentBoy.name) {
           allOrders.push({ ...data, docId: docSnap.id });
         }
@@ -303,18 +431,16 @@ async function doLogin() {
 
   function getActionBtns(o) {
     const status = o.deliveryStatus || 'assigned';
-    if (status === 'assigned') return `
-      <button class="action-btn pickup" onclick="updateDeliveryStatus('${o.docId}','pickedup')">🟠 Mark as Picked Up</button>`;
-    if (status === 'pickedup') return `
-      <button class="action-btn onway" onclick="updateDeliveryStatus('${o.docId}','onway')">🔵 On the Way</button>`;
-    if (status === 'onway') return `
-      <button class="action-btn deliver" onclick="updateDeliveryStatus('${o.docId}','delivered')">🟢 Mark as Delivered</button>`;
+    if (status === 'assigned') return `<button class="action-btn pickup" onclick="updateDeliveryStatus('${o.docId}','pickedup')">🟠 Mark as Picked Up</button>`;
+    if (status === 'pickedup') return `<button class="action-btn onway" onclick="updateDeliveryStatus('${o.docId}','onway')">🔵 On the Way</button>`;
+    if (status === 'onway') return `<button class="action-btn deliver" onclick="updateDeliveryStatus('${o.docId}','delivered')">🟢 Mark as Delivered</button>`;
     return `<div style="text-align:center;color:var(--green);font-size:0.85rem;padding:0.5rem">✅ Delivery Complete!</div>`;
   }
 
   function orderCardHTML(o) {
     const time = o.createdAt?.seconds ? new Date(o.createdAt.seconds*1000).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '—';
     const phone = o.customer?.phone || '—';
+    const vehicleIcon = currentBoy.vehicleType === 'bike' ? '🏍️' : '🚴';
     return `
       <div class="order-card">
         <div class="order-card-header">
