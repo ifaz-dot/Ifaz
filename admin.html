@@ -1,32 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "2c1fe654-c435-427d-8eb1-1d61bb4831fa",
-      serviceWorkerPath: "/Ifaz/OneSignalSDKWorker.js",
-      serviceWorkerParam: { scope: "/Ifaz/" },
-      notifyButton: { enable: false },
-      promptOptions: {
-        slidedown: {
-          prompts: [{
-            type: "push",
-            autoPrompt: true,
-            text: {
-              actionMessage: "Get notified when new orders arrive!",
-              acceptButton: "Allow",
-              cancelButton: "No Thanks"
-            },
-            delay: { pageViews: 1, timeDelay: 2 }
-          }]
-        }
-      }
-    });
-  });
-</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PULP Admin — Order Dashboard</title>
