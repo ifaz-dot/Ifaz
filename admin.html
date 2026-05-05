@@ -529,7 +529,7 @@ async function assignDelivery(orderId) {
   }
   // ── TABS ──
 function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='orders')||(i===1&&tab==='calendar')));
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='orders')||(i===1&&tab==='calendar')||(i===2&&tab==='deliveryboys')));
   document.getElementById('tabOrders').style.display = tab === 'orders' ? 'block' : 'none';
   document.getElementById('tabCalendar').style.display = tab === 'calendar' ? 'block' : 'none';
   document.getElementById('tabDeliveryboys').style.display = tab === 'deliveryboys' ? 'block' : 'none';
