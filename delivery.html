@@ -214,7 +214,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc }
+  import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc, onSnapshot }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -236,6 +236,7 @@
   window._query = query;
   window._where = where;
   window._addDoc = addDoc;
+  window._onSnapshot = onSnapshot;
 </script>
 
 <script>
