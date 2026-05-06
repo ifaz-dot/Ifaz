@@ -170,7 +170,20 @@
   </div>
 
 </div>
-
+<!-- DISPATCH POPUP -->
+<div id="dispatchPopup" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:#1a1816;border:1px solid rgba(232,48,74,0.3);border-radius:24px;padding:2rem;width:100%;max-width:400px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:0.5rem">🆕</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;margin-bottom:0.5rem">New Order!</h2>
+    <div id="dispatchTimer" style="font-size:3rem;font-weight:900;color:#e8304a;margin:1rem 0">60</div>
+    <p style="font-size:0.83rem;color:rgba(240,237,230,0.5);margin-bottom:0.5rem">seconds to accept</p>
+    <div id="dispatchOrderInfo" style="background:rgba(255,255,255,0.04);border-radius:12px;padding:1rem;margin-bottom:1.5rem;text-align:left;font-size:0.85rem"></div>
+    <div style="display:flex;gap:0.75rem">
+      <button onclick="acceptOrder()" style="flex:1;background:#6bbf3f;color:#fff;border:none;border-radius:12px;padding:1rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer">✅ Accept</button>
+      <button onclick="rejectDispatch()" style="flex:1;background:rgba(255,255,255,0.06);color:rgba(240,237,230,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer">❌ Reject</button>
+    </div>
+  </div>
+</div>
 <!-- DASHBOARD -->
 <div id="dashboard">
   <div class="topbar">
