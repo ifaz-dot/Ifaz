@@ -1185,7 +1185,7 @@ async function placeOrder() {
     customer: { firstName, lastName, email, phone, address, city, deliveryTime: delivTime },
     items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, subtotal: i.price * i.qty })),
     payment: currentPayMethod, subtotal: getCartTotal(),
-    delivery: getCartTotal() >= 500 ? 0 : 60, total, status: 'processing',
+    delivery: getCartTotal() >= 500 ? 0 : 60, total, status: 'pending_dispatch', deliveryStatus: 'pending_dispatch', assignedTo: '',
     createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date().toISOString()
   };
   const btn = document.querySelector('.place-order-btn');
