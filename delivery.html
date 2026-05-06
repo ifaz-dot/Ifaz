@@ -407,12 +407,13 @@ function startDispatchListener() {
           showDispatchPopup(order);
         }
       }
-      if (change.type === 'modified') {
-        const order = change.doc.data();
-        if (order.status !== 'pending_dispatch' && currentDispatchOrder?.docId === change.doc.id) {
+      if (change.type === 'removed') {
+        if (currentDispatchOrder?.docId === change.doc.id) {
           hideDispatchPopup();
+          showToast('❌ Order taken by another rider.');
         }
-      }
+  
+}
     });
   });
 }
