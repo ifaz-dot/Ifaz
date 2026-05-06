@@ -321,16 +321,26 @@
 <div id="tabDeliveryboys" style="display:none">
   <div style="padding:20px">
     <h2 style="margin-bottom:20px">👥 Delivery Boys</h2>
+
+    <!-- PENDING APPROVALS -->
+    <div style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid rgba(245,197,24,0.2)">
+      <h3 style="margin-bottom:16px;color:var(--yellow)">⏳ Pending Approvals</h3>
+      <div id="pendingApprovalsList">Loading...</div>
+    </div>
+
+    <!-- ADD MANUALLY -->
     <div style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:20px">
-      <h3 style="margin-bottom:16px">➕ Add New Delivery Boy</h3>
+      <h3 style="margin-bottom:16px">➕ Add Manually</h3>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <input id="dbName" placeholder="Name" style="padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);flex:1;min-width:140px">
-        <input id="dbPassword" placeholder="Password" style="padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);flex:1;min-width:140px">
+        <input id="dbName" placeholder="Name" style="padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--dark);color:var(--text);flex:1;min-width:140px">
+        <input id="dbPassword" placeholder="Password" style="padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--dark);color:var(--text);flex:1;min-width:140px">
         <button onclick="addDeliveryBoy()" style="padding:10px 20px;background:#6c63ff;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600">Add</button>
       </div>
     </div>
+
+    <!-- APPROVED LIST -->
     <div id="deliveryBoysList" style="background:var(--card);border-radius:16px;padding:20px">
-      <h3 style="margin-bottom:16px">👤 Current Delivery Boys</h3>
+      <h3 style="margin-bottom:16px">✅ Approved Delivery Boys</h3>
       <div id="dbListContent">Loading...</div>
     </div>
   </div>
