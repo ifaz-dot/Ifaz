@@ -388,7 +388,87 @@
     document.getElementById('dashboard').style.display = 'block';
     document.getElementById('topbarName').textContent = '👋 ' + currentBoy.name;
     loadOrders();
+    startDispatchListener(); 
   }
+  // ── DISPATCH LISTENER ──
+let dispatchTimer = null;
+let currentDispatchOrder = null;
+
+function startDispatchListener() {
+  const q = window._query(
+    window._collection(window._db, 'orders'),
+    window._where('status', '==', 'pending_dispatch')
+  );
+  window._onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        const order = { ...change.doc.data(), docId: change.doc.id };
+        if (!currentDispatchOrder) {
+          showDispatchPopup(order);
+        }
+      }
+      if (change.type === 'modified') {
+        const order = change.doc.data();
+        if (order.status !== 'pending_dispatch' && currentDispatchOrder?.docId === change.doc.id) {
+          hideDispatchPopup();
+        }
+      }
+    });
+  });
+}
+
+function showDispatchPopup(order) {
+  currentDispatchOrder = order;
+  let timeLeft = 60;
+  const popup = document.getElementById('dispatchPopup');
+  const timerEl = document.getElementById('dispatchTimer');
+  const infoEl = document.getElementById('dispatchOrderInfo');
+  infoEl.innerHTML = `
+    <div style="margin-bottom:0.5rem"><strong>${order.customer?.firstName || ''} ${order.customer?.lastName || ''}</strong></div>
+    <div style="color:rgba(240,237,230,0.5);margin-bottom:0.3rem">📍 ${order.customer?.address || '—'}, ${order.customer?.city || ''}</div>
+    <div style="color:rgba(240,237,230,0.5);margin-bottom:0.3rem">💰 ৳${order.total || 0} · ${order.payment || '—'}</div>
+    <div style="color:rgba(240,237,230,0.5)">${(order.items || []).map(i => i.name + ' ×' + i.qty).join(', ')}</div>
+  `;
+  timerEl.textContent = timeLeft;
+  popup.style.display = 'flex';
+  dispatchTimer = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+    if (timeLeft <= 10) timerEl.style.color = '#ff4d4d';
+    if (timeLeft <= 0) {
+      clearInterval(dispatchTimer);
+      hideDispatchPopup();
+    }
+  }, 1000);
+}
+
+function hideDispatchPopup() {
+  clearInterval(dispatchTimer);
+  currentDispatchOrder = null;
+  document.getElementById('dispatchPopup').style.display = 'none';
+  document.getElementById('dispatchTimer').style.color = '#e8304a';
+}
+
+async function acceptOrder() {
+  if (!currentDispatchOrder) return;
+  try {
+    await window._updateDoc(window._doc(window._db, 'orders', currentDispatchOrder.docId), {
+      status: 'shipped',
+      deliveryStatus: 'assigned',
+      assignedTo: currentBoy.name
+    });
+    hideDispatchPopup();
+    showToast('✅ Order accepted!');
+    loadOrders();
+  } catch(e) {
+    showToast('⚠️ Failed to accept. Try again.');
+  }
+}
+
+function rejectDispatch() {
+  hideDispatchPopup();
+  showToast('❌ Order rejected.');
+}
 
   // ── LOAD ORDERS ──
   async function loadOrders() {
