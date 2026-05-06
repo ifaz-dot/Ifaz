@@ -849,23 +849,60 @@ const assignHTML = assignedTo
 
   async function loadDeliveryBoys() {
   const snap = await window._getDocs(window._collection(window._db, 'deliveryBoys'));
+  const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const pending = all.filter(d => d.status === 'pending');
+  const pendingEl = document.getElementById('pendingApprovalsList');
+  if (pending.length === 0) {
+    pendingEl.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No pending requests.</p>';
+  } else {
+    pendingEl.innerHTML = pending.map(d => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;border:1px solid rgba(245,197,24,0.2);margin-bottom:10px;background:rgba(245,197,24,0.04)">
+        <div>
+          <div style="font-weight:600">👤 ${d.name}</div>
+          <div style="font-size:12px;color:var(--muted)">📱 ${d.phone || '—'} · ${d.vehicleType === 'bike' ? '🏍️ Bike · ' + (d.bikeNumber || '') : '🚴 Cycle'}</div>
+          <div style="font-size:12px;color:var(--muted)">🔒 Password: ${d.password}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="approveDeliveryBoy('${d.id}')" style="padding:6px 14px;background:#6bbf3f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600">✅ Approve</button>
+          <button onclick="rejectDeliveryBoy('${d.id}')" style="padding:6px 14px;background:#ff4d4d;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600">❌ Reject</button>
+        </div>
+      </div>`).join('');
+  }
+
+  const approved = all.filter(d => d.status === 'approved' || !d.status);
   const list = document.getElementById('dbListContent');
-  if (snap.empty) {
-    list.innerHTML = '<p style="color:var(--muted)">No delivery boys added yet.</p>';
+  if (approved.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted)">No approved delivery boys yet.</p>';
     return;
   }
-  list.innerHTML = snap.docs.map(doc => {
-    const d = doc.data();
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:10px">
+  list.innerHTML = approved.map(d => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:10px">
       <div>
         <div style="font-weight:600">👤 ${d.name}</div>
-        <div style="font-size:12px;color:var(--muted)">Password: ${d.password}</div>
+        <div style="font-size:12px;color:var(--muted)">📱 ${d.phone || '—'} · ${d.vehicleType === 'bike' ? '🏍️ ' + (d.bikeNumber || '') : '🚴 Cycle'}</div>
+        <div style="font-size:12px;color:var(--muted)">🔒 Password: ${d.password}</div>
       </div>
-      <button onclick="removeDeliveryBoy('${doc.id}')" style="padding:6px 14px;background:#ff4d4d;color:#fff;border:none;border-radius:8px;cursor:pointer">🗑️ Remove</button>
-    </div>`;
-  }).join('');
+      <button onclick="removeDeliveryBoy('${d.id}')" style="padding:6px 14px;background:#ff4d4d;color:#fff;border:none;border-radius:8px;cursor:pointer">🗑️ Remove</button>
+    </div>`).join('');
 }
 
+async function approveDeliveryBoy(id) {
+  const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await updateDoc(window._doc(window._db, 'deliveryBoys', id), { status: 'approved' });
+  showToast('✅ Delivery boy approved!');
+  loadDeliveryBoys();
+  loadDeliveryBoysData();
+}
+
+async function rejectDeliveryBoy(id) {
+  if (!confirm('Reject this registration?')) return;
+  const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await updateDoc(window._doc(window._db, 'deliveryBoys', id), { status: 'rejected' });
+  showToast('❌ Registration rejected.');
+  loadDeliveryBoys();
+  loadDeliveryBoysData();
+}
 async function addDeliveryBoy() {
   const name = document.getElementById('dbName').value.trim();
   const password = document.getElementById('dbPassword').value.trim();
