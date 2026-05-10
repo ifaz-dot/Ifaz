@@ -1345,6 +1345,7 @@ function handleAuthBtn() {
     openAuth(); return;
   }
   localStorage.setItem('pulp_current_page', name);
+    history.pushState({ page: name }, '', '#' + name);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const pageEl = document.getElementById('page-' + name);
   if (pageEl) pageEl.classList.add('active');
@@ -1360,7 +1361,20 @@ function handleAuthBtn() {
 }
 
 function scrollToEl(sel) { const el = document.querySelector(sel); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
-
+window.addEventListener('popstate', (e) => {
+  const page = e.state?.page || 'home';
+  localStorage.setItem('pulp_current_page', page);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const map = { home:'bn-home', cart:'bn-cart', track:'bn-track', profile:'bn-profile', detail:'bn-shop' };
+  const bnId = map[page];
+  if (bnId) { const el = document.getElementById(bnId); if (el) el.classList.add('active'); }
+  if (page === 'cart') renderCart();
+  if (page === 'track') renderTrackPage();
+  if (page === 'profile') renderProfile();
+});
 function initObserver() {
   const els = document.querySelectorAll('.fade-up');
   els.forEach(el => { if (!el.classList.contains('will-animate')) el.classList.add('will-animate'); });
