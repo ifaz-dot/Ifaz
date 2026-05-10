@@ -1341,10 +1341,10 @@ function handleAuthBtn() {
 }
   // ── PAGE ROUTING ──
   function showPage(name) {
-  // If going to profile and not logged in → show login popup
   if (name === 'profile' && !window._currentUser) {
     openAuth(); return;
   }
+  localStorage.setItem('pulp_current_page', name);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const pageEl = document.getElementById('page-' + name);
   if (pageEl) pageEl.classList.add('active');
@@ -1380,6 +1380,8 @@ document.addEventListener('DOMContentLoaded', function() {
   updateCartBadge();
   initObserver();
   setTimeout(() => { const pm = document.querySelector('.pay-method.selected'); if (pm) selectPay(pm, 'card'); }, 300);
+  const savedPage = localStorage.getItem('pulp_current_page');
+  if (savedPage && savedPage !== 'home') showPage(savedPage);
 });
 </script>
   <!--Start of Tawk.to Script-->
